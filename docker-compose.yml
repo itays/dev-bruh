@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  dev-finder-db:
+    image: postgres
+    restart: always
+    container_name: dev-finder-db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+      PGDATA: /data/postgres
+    volumes:
+      - postgrs:/data/postgres
+
+volumes:
+  postgrs:
