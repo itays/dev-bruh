@@ -1,19 +1,65 @@
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db/db";
+import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Room } from "@/lib/db/schema";
+import { Github } from "lucide-react";
+import { getRooms } from "@/data-access/rooms";
+
+function RoomCard({
+  room: { id, name, description, githubRepo },
+}: {
+  room: Room;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{name}</CardTitle>
+        <CardDescription>{description}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {githubRepo && (
+          <Link
+            href={githubRepo}
+            className="flex items-center gap-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Github /> Github Repo
+          </Link>
+        )}
+      </CardContent>
+      <CardFooter>
+        <Button asChild>
+          <Link href={`/rooms/${id}`}>Join Room</Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
 
 export default async function Home() {
-  const rooms = await db.query.room.findMany();
+  const rooms = await getRooms();
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      {rooms.map(({ name, description, language, githubRepo, id }, index) => (
-        <div key={id}>
-          <h2>{name}</h2>
-          <p>{description}</p>
-          <p>{language}</p>
-          <p>{githubRepo}</p>
-          <Button>Join</Button>
-        </div>
-      ))}
+    <main className="min-h-screen py-16 container">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl">Find Dev rooms</h1>
+        <Button asChild>
+          <Link href="/create-room">Create Room</Link>
+        </Button>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        {rooms.map((room) => (
+          <RoomCard key={room.id} room={room} />
+        ))}
+      </div>
     </main>
   );
 }
