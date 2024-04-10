@@ -9,6 +9,7 @@ import {
   StreamTheme,
   SpeakerLayout,
   CallControls,
+  CallParticipantsList,
 } from "@stream-io/video-react-sdk";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -33,6 +34,8 @@ export function DevBruhPlayer({ room }: { room: Room }) {
       apiKey,
       user: {
         id: userId,
+        name: session.data.user.name ?? "Unknown",
+        image: session.data.user.image ?? undefined,
       },
       tokenProvider: () => generateTokenAction(),
     });
@@ -40,6 +43,10 @@ export function DevBruhPlayer({ room }: { room: Room }) {
     const call = c.call("default", room.id);
     call.join({ create: true });
     setCall(call);
+    return () => {
+      call.leave();
+      c.disconnectUser();
+    };
   }, [session.data, room.id]);
 
   return (
@@ -50,6 +57,7 @@ export function DevBruhPlayer({ room }: { room: Room }) {
           <StreamCall call={call}>
             <SpeakerLayout />
             <CallControls />
+            <CallParticipantsList onClose={() => {}} />
           </StreamCall>
         </StreamTheme>
       </StreamVideo>
