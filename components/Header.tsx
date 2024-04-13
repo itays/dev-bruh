@@ -15,8 +15,7 @@ import Link from "next/link";
 
 function AccountDropdown() {
   const session = useSession();
-  const isLoggedIn = !!session.data;
-  console.log(session.data?.user);
+
   // generate two character initials from the user's name
   function getUserInitials() {
     if (session.data?.user.name) {
@@ -33,25 +32,25 @@ function AccountDropdown() {
             <AvatarImage src={session.data?.user.image || ""} />
             <AvatarFallback>{getUserInitials()}</AvatarFallback>
           </Avatar>
-          {isLoggedIn ? "Account" : "Sign in"}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {isLoggedIn ? (
-          <DropdownMenuItem onClick={() => signOut()}>
-            <LogOut /> Sign out
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem onClick={() => signIn("google")}>
-            Sign in
-          </DropdownMenuItem>
-        )}
+        <DropdownMenuItem
+          onClick={() =>
+            signOut({
+              callbackUrl: "/",
+            })
+          }
+        >
+          <LogOut /> Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
 
 export function Header() {
+  const session = useSession();
   return (
     <header
       data-testid="header"
@@ -67,7 +66,11 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-4">
-          <AccountDropdown />
+          {session.data?.user ? (
+            <AccountDropdown />
+          ) : (
+            <Button onClick={() => signIn("google")}>Sign in</Button>
+          )}
           <ModeToggle />
         </div>
       </div>

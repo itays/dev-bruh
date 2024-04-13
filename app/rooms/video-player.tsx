@@ -14,6 +14,7 @@ import {
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { generateTokenAction } from "./[roomId]/actions";
+import { useRouter } from "next/navigation";
 
 const apiKey = process.env.NEXT_PUBLIC_GET_STREAM_API_KEY!;
 
@@ -21,6 +22,7 @@ export function DevBruhPlayer({ room }: { room: Room }) {
   const session = useSession();
   const [client, setClient] = useState<StreamVideoClient | null>(null);
   const [call, setCall] = useState<Call | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!room.id) {
@@ -44,8 +46,12 @@ export function DevBruhPlayer({ room }: { room: Room }) {
     call.join({ create: true });
     setCall(call);
     return () => {
-      call.leave();
-      c.disconnectUser();
+      call
+        .leave()
+        .then(() => {
+          c.disconnectUser();
+        })
+        .catch(console.error);
     };
   }, [session.data, room.id]);
 
@@ -56,7 +62,11 @@ export function DevBruhPlayer({ room }: { room: Room }) {
         <StreamTheme>
           <StreamCall call={call}>
             <SpeakerLayout />
-            <CallControls />
+            <CallControls
+              onLeave={() => {
+                router.push("/");
+              }}
+            />
             <CallParticipantsList onClose={() => {}} />
           </StreamCall>
         </StreamTheme>

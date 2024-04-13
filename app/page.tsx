@@ -12,9 +12,11 @@ import {
 import { Room } from "@/lib/db/schema";
 import { Github } from "lucide-react";
 import { getRooms } from "@/data-access/rooms";
+import { SearchBar } from "./SearchBar";
+import { TagsList } from "@/components/TagsList";
 
 function RoomCard({
-  room: { id, name, description, githubRepo },
+  room: { id, name, description, githubRepo, technologies },
 }: {
   room: Room;
 }) {
@@ -25,6 +27,7 @@ function RoomCard({
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
+        <TagsList tags={technologies.split(",")} />
         {githubRepo && (
           <Link
             href={githubRepo}
@@ -45,8 +48,11 @@ function RoomCard({
   );
 }
 
-export default async function Home() {
-  const rooms = await getRooms();
+export default async function Home(props: {
+  searchParams: { search?: string };
+}) {
+  console.log(props.searchParams.search);
+  const rooms = await getRooms(props.searchParams.search);
   return (
     <main className="min-h-screen py-16 container">
       <div className="flex justify-between items-center mb-8">
@@ -55,6 +61,9 @@ export default async function Home() {
           <Link href="/create-room">Create Room</Link>
         </Button>
       </div>
+
+      <SearchBar />
+
       <div className="grid grid-cols-3 gap-4">
         {rooms.map((room) => (
           <RoomCard key={room.id} room={room} />
