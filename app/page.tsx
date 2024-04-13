@@ -51,7 +51,6 @@ function RoomCard({
 export default async function Home(props: {
   searchParams: { search?: string };
 }) {
-  console.log(props.searchParams.search);
   const rooms = await getRooms(props.searchParams.search);
   return (
     <main className="min-h-screen py-16 container">
